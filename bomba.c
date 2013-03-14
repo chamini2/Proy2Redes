@@ -8,7 +8,7 @@
 #include <strings.h>
 #include "queue.h"
 #include "errores.h"
-#include "logistica.h"    /*RPC*/
+#include "logistica.h"
 
 char *nombre  = NULL;       /*Nombre de la bomba*/
 int tiempo    = 0;          /*Tiempo transcurrido*/
@@ -28,7 +28,7 @@ char *md5(char *s) {
 /*
  * Para el uso de RPC.
  */
-int pedir_gasolina(char *host, int arg) {
+int pedir_gasolina_centro(char *host, int arg) {
 
     CLIENT *clnt;
     int *res, ret;
@@ -52,13 +52,14 @@ int pedir_gasolina(char *host, int arg) {
     return ret;
 }
 
-int autenticar(char *host) {
+int autenticar_centro(char *host) {
 
     CLIENT *clnt;
     int *res, ret;
-    char *desaf, *soluc;
-    char login[128];
+    char **user, *soluc, *desaf;
+    char *login;
     int ticket;
+    void *pvoid;
 
     clnt = clnt_create(host, LOGISTICA, LOGISTICA_VERS, "udp");
     if (clnt == NULL) {
@@ -66,12 +67,20 @@ int autenticar(char *host) {
         exit(1);
     }
 
-    desaf = pedir_desafio_1(clnt);
-    ticket = atoi(strtok(desaf, "&"));
-    desaf = strotk(NULL, "&");
+    user = pedir_desafio_1(pvoid, clnt);
+    ticket = atoi(strtok(*user, "&"));
+    desaf = strtok(NULL, "&");
 
     /*Se calcula la solucion para el desafio*/
     soluc = md5(desaf);
+
+    login = (char *) malloc(128 * sizeof(char));
+    if (login == NULL) {
+
+        errorMem(__LINE__);
+        exit(1);
+    }
+
     sprintf(login, "%d&%s", ticket, soluc);
 
     res = autenticar_1(&login, clnt);
@@ -80,14 +89,16 @@ int autenticar(char *host) {
 
     ret = *res;
     free(res);
+    free(user);
 
     return ret;
 }
 
-int pedir_tiempo(char *host) {
+int pedir_tiempo_centro(char *host) {
 
     CLIENT *clnt;
     int *res, ret;
+    void *pvoid;
 
     clnt = clnt_create(host, LOGISTICA, LOGISTICA_VERS, "udp");
     if (clnt == NULL) {
@@ -95,7 +106,7 @@ int pedir_tiempo(char *host) {
         exit(1);
     }
 
-    res = pedir_tiempo_1(clnt);
+    res = pedir_tiempo_1(pvoid, clnt);
     if (res == NULL) {
         clnt_perror(clnt, "call failed:");
     }
@@ -119,7 +130,7 @@ int analizar_fichero(char *fich) {
     char buffer[100];           /*Buffer de lectura para el archivo.*/
     distr cent;                 /*Variable que representa un centro*/
     char *nom, *DNS;            /*Nombre y DNS de centro de distribucion*/
-    int puerto, respuesta;      /*Puerto y tiempo de respuesta de centro de distribucion*/
+    int ticket, respuesta;      /*Ticket y tiempo de respuesta de centro de distribucion*/
     int min_resp = MAX_INT;     /*Tiempo de respuesta minimo de los centros de distribucion*/
     int i;                      /*Variable de uso generico*/
 
@@ -135,7 +146,7 @@ int analizar_fichero(char *fich) {
         DNS = strtok(NULL, "&");
         ticket = -1;
 
-        respuesta = pedir_tiempo(DNS);
+        respuesta = pedir_tiempo_centro(DNS);
 
         /*Si consegui un nuevo minimo tiempo de respuesta*/
         if (respuesta < min_resp) {
@@ -191,26 +202,26 @@ void *pedir_gas() {
         /*Para intentar autenticar maximo 5 veces*/
         for (i = 0; i < 5; ++i) {
 
-            envio = pedir_gasolina(cent->DNS, cent->ticket);
+            envio = pedir_gasolina_centro(cent->DNS, cent->ticket);
 
             /*Si no estaba correctamente autenticado*/
             if (envio == -1) {
 
-                cent->ticket = autenticar(cent->DNS);
+                cent->ticket = autenticar_centro(cent->DNS);
 
                 /*Si se autentico exitosamente*/
                 if (cent->ticket != -1) {
 
                     sem_wait(&semf);
                     fprintf(out, "Autenticacion: %d, %s, Exitosa\n", tiempo, cent->nombre);
-                    printf(out, "Autenticacion: %d, %s, Exitosa\n", tiempo, cent->nombre);
+                    printf("Autenticacion: %d, %s, Exitosa\n", tiempo, cent->nombre);
                     sem_post(&semf);
                 /*Si no logro autenticarse*/
                 } else {
 
                     sem_wait(&semf);
                     fprintf(out, "Autenticacion: %d, %s, Fallida\n", tiempo, cent->nombre);
-                    printf(out, "Autenticacion: %d, %s, Fallida\n", tiempo, cent->nombre);
+                    printf("Autenticacion: %d, %s, Fallida\n", tiempo, cent->nombre);
                     sem_post(&semf);
                 }
             /*Si obtuvo una respuesta*/
@@ -228,7 +239,7 @@ void *pedir_gas() {
 
                 sem_wait(&semf);
                 fprintf(out, "Peticion: %d, %s, Positiva\n", tiempo, cent->nombre);
-                printf(out, "Peticion: %d, %s, Positiva\n", tiempo, cent->nombre);
+                printf("Peticion: %d, %s, Positiva\n", tiempo, cent->nombre);
                 sem_post(&semf);
                 break;
             /*Si NO se enviara la gasolina*/
@@ -236,7 +247,7 @@ void *pedir_gas() {
 
                 sem_wait(&semf);
                 fprintf(out, "Peticion: %d, %s, Negativa\n", tiempo, cent->nombre);
-                printf(out, "Peticion: %d, %s, Negativa\n", tiempo, cent->nombre);
+                printf("Peticion: %d, %s, Negativa\n", tiempo, cent->nombre);
                 sem_post(&semf);
             }
         }
@@ -255,13 +266,13 @@ void *pedir_gas() {
 
     sem_wait(&semf);
     fprintf(out, "Llegada de la gandola: %d, %d\n", tiempo, gas);
-    printf(out, "Llegada de la gandola: %d, %d\n", tiempo, gas);
+    printf("Llegada de la gandola: %d, %d\n", tiempo, gas);
 
     /*Si el tanque se lleno*/
     if (gas == max) {
 
         fprintf(out, "Tanque full: %d\n", tiempo);
-        printf(out, "Tanque full: %d\n", tiempo);
+        printf("Tanque full: %d\n", tiempo);
     }
     sem_post(&semf);
 
@@ -300,7 +311,7 @@ int main(int argc, char **argv) {
     }
 
     fprintf(out, "Estado inicial: %d\n", gas);
-    printf(out, "Estado inicial: %d\n", gas);
+    printf("Estado inicial: %d\n", gas);
 
     /*Revisa el fichero de centros, si hay error termina el programa.*/
     if ((espera = analizar_fichero(fich)) < 0) {
@@ -311,14 +322,14 @@ int main(int argc, char **argv) {
     if (gas == 0) {
 
         fprintf(out, "Tanque vacio: %d\n", tiempo);
-        printf(out, "Tanque vacio: %d\n", tiempo);
+        printf("Tanque vacio: %d\n", tiempo);
     }
 
     /*Si comenzo lleno el tanque*/
     if (gas == max) {
 
         fprintf(out, "Tanque full: %d\n", tiempo);
-        printf(out, "Tanque full: %d\n", tiempo);
+        printf("Tanque full: %d\n", tiempo);
     }
 
     /*Mientras no pasen las 8 horas*/
@@ -342,7 +353,7 @@ int main(int argc, char **argv) {
 
             sem_wait(&semf);
             fprintf(out, "Tanque vacio: %d\n", tiempo);
-            printf(out, "Tanque vacio: %d\n", tiempo);
+            printf("Tanque vacio: %d\n", tiempo);
             sem_post(&semf);
         }
 
