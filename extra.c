@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "extra.h"
+#include "errores.h"
 #define DEFAULT_CHAR "\033[0m"
 #define UNDER_CHAR "\033[4m"
 #define BOLD_CHAR "\033[1m"
@@ -21,27 +22,29 @@ distr create_distr(char *nombre, char *DNS, int puerto, int pr) {
 
     /*Pide memoria para la estrucura de distribuidor*/
     if ((d = (distr) malloc(sizeof(struct distr))) == NULL) {
-        errorMem();
+        errorMem(__LINE__);
         return NULL;
     }
 
     /*Copiamos los atributos para evitar errores de apuntadores*/
     size = strlen(nombre);
     if ((temp = (char *) malloc((size + 1) * sizeof(char))) == NULL) {
-        errorMem();
+        errorMem(__LINE__);
     }
     strcpy(temp, nombre);
     d->nombre = temp;
 
     size = strlen(DNS);
     if ((temp = (char *) malloc((size + 1) * sizeof(char))) == NULL) {
-        errorMem();
+        errorMem(__LINE__);
     }
     strcpy(temp, DNS);
     d->DNS = temp;
 
     d->puerto = puerto;
     d->pr = pr;
+
+    return d;
 }
 
 /**
@@ -209,7 +212,7 @@ int llamadaB (int argc, char **argv, char **nombre, char **fich, int *max, int *
                 if (strcmp(argv[i], "-n") == 0) {
                     if ((*nombre = (char *) malloc((strlen(argv[i+1]) + 1) * sizeof(char))) == NULL) {
 
-                        return errorMem();
+                        return errorMem(__LINE__);
                     }
                     strcpy(*nombre,argv[i+1]);
 
@@ -229,7 +232,7 @@ int llamadaB (int argc, char **argv, char **nombre, char **fich, int *max, int *
                 } else if (strcmp(argv[i], "-fc") == 0) {
                     if ((*fich = (char *) malloc((strlen(argv[i+1]) + 1) * sizeof(char))) == NULL) {
 
-                        return errorMem();
+                        return errorMem(__LINE__);
                     }
                     strcpy(*fich,argv[i+1]);
 
