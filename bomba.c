@@ -343,14 +343,6 @@ int main(int argc, char **argv) {
             /*Aumenta el numero de peticiones a hacer*/
             ++pet;
 
-            //Aqui llama a la funcion con RPC
-            //Si la hacemos sin hilos se hara peticiones una por una,
-            //Creo que es la manera adecuada, ya que sino puede ser problematico
-            //Para el manejo de tickets, pero no se si deba pasar tiempo de la bomba mietras
-            //se pide, o solo para cuando esta esperando... de cualquier manera habria que usar
-            //hilos... ya me perdi, pero que quede aqui pues...
-            //habra que usar hilos y ya me convencia  mi mismo de que aqui es el lugar para generarlos
-
             /*Crea un hilo que maneje la peticion*/
             if (pthread_create(&mensajero, NULL, pedir_gas, NULL) != 0) {
 
@@ -362,8 +354,8 @@ int main(int argc, char **argv) {
         sem_post(&sem);
     }
 
-    //Aqui falto cerrar el archivo... quien sabe como funcionaba... capaz yo tengo codigo viejo?
-    //Revisar en Moodle de Juan
+    /*Cierra el archivo de log*/
+    fclose(out);
 
     return 0;
 }
