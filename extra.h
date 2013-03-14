@@ -6,12 +6,14 @@
 struct distr {
   char *nombre;
   char *DNS;
-  int puerto;
+  int ticket;
   int pr;
 };
 
 typedef struct distr *distr;
 
-distr create_distr(char *nombre, char *DNS, int puerto, int pr);
+distr create_distr(char *nombre, char *DNS, int ticket, int pr);
 
 int llamadaB (int argc, char **argv, char **nombre, char **fich, int *max, int *inv, int *con);
+
+int llamadaC (int argc, char **argv, char **nombre, int *max, int *inv, int *tiempo, int *sum);

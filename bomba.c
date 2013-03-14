@@ -8,81 +8,104 @@
 #include <strings.h>
 #include "queue.h"
 #include "errores.h"
+#include "logistica.h"    /*RPC*/
 
-char *nombre  = NULL;     /*Nombre de la bomba*/
-int tiempo    = 0;        /*Tiempo transcurrido*/
-int gas       = 0;        /*Cantidad de gasolina actual*/
-int max       = 0;        /*Capacidad maxima de la bomba*/
-int pet       = 1;        /*Numero de peticiones a hacer*/
-queue centros = NULL;     /*Cola de prioridad con los centros de distribuicion*/
-sem_t sem;                /*Semaforo para control de acceso a 'gas' y 'pet'*/
-sem_t semf;               /*Semaforo para control de escritura de archivo*/
-FILE *out;                /*Arhcivo del log*/
+char *nombre  = NULL;       /*Nombre de la bomba*/
+int tiempo    = 0;          /*Tiempo transcurrido*/
+int gas       = 0;          /*Cantidad de gasolina actual*/
+int max       = 0;          /*Capacidad maxima de la bomba*/
+int pet       = 1;          /*Numero de peticiones a hacer*/
+queue centros = NULL;       /*Cola de prioridad con los centros de distribuicion*/
+sem_t sem;                  /*Semaforo para control de acceso a 'gas' y 'pet'*/
+sem_t semf;                 /*Semaforo para control de escritura de archivo*/
+FILE *out;                  /*Arhcivo del log*/
 
-/**
- * Hace una conexion con el centro indicado y retorna su respuesta.
- * @param  tipo   tipo de peticion.
- * @param  puerto puerto por el cual conectarse con el servidor.
- * @param  DNS    DNS del servidor.
- * @return        Respuesta del servidor.
+char *md5(char *s) {
+    return NULL;
+    //exec
+}
+
+/*
+ * Para el uso de RPC.
  */
-int conectar_centro(char tipo, int puerto, char *DNS) {
+int pedir_gasolina(char *host, int arg) {
 
-char respuesta[4];             /*Respuesta del servidor*/
-char peticion[256];            /*Mensaje que se enviara al serivdor*/
-int fd;                        /*File descriptor del socket*/
-struct sockaddr_in Cdir;       /*Estructura para el socket del servidor (centro de distribucion)*/
+    CLIENT *clnt;
+    int *res, ret;
 
-    /*Si la peticion no es ni de gasolina ni de tiempo de respuesta*/
-    if ((tipo != 'G') && (tipo != 'g') && (tipo != 'T') && (tipo != 't')) {
-
-    /*Respuesta negativa*/
-        return -1;
+    clnt = clnt_create(host, LOGISTICA, LOGISTICA_VERS, "udp");
+    if (clnt == NULL) {
+        clnt_pcreateerror(host);
+        exit(1);
     }
 
-    sprintf(peticion, "%s&%c", nombre, tipo);
-
-    /*Abriendo socket con protocolo TCP*/
-    if ((fd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
-
-        errorSocket(__LINE__);
-        return -1;
+    res = pedir_gasolina_1(&arg, clnt);
+    if (res == NULL) {
+        clnt_perror(clnt, "call failed:");
     }
 
-    /*Inicializacion de la estructura 'Cdir'*/
-    bzero(&Cdir, sizeof(Cdir));
-    Cdir.sin_family = AF_INET;
-    Cdir.sin_addr = *((struct in_addr *) gethostbyname(DNS)->h_addr);
-    Cdir.sin_port = htons(puerto);
+    clnt_destroy(clnt);
 
-    /*Conecto con el servidor*/
-    if (connect(fd,(struct sockaddr *) &Cdir, sizeof(Cdir)) < 0) {
+    ret = *res;
+    free(res);
 
-        close(fd);
-        errorSocket(__LINE__);
-        return -1;
+    return ret;
+}
+
+int autenticar(char *host) {
+
+    CLIENT *clnt;
+    int *res, ret;
+    char *desaf, *soluc;
+    char login[128];
+    int ticket;
+
+    clnt = clnt_create(host, LOGISTICA, LOGISTICA_VERS, "udp");
+    if (clnt == NULL) {
+        clnt_pcreateerror(host);
+        exit(1);
     }
 
-    /*Enviamos peticion al servidor*/
-    if (write(fd, peticion, 256) < 1) {
+    desaf = pedir_desafio_1(clnt);
+    ticket = atoi(strtok(desaf, "&"));
+    desaf = strotk(NULL, "&");
 
-        close(fd);
-        errorFile(__LINE__);
-        return -1;
+    /*Se calcula la solucion para el desafio*/
+    soluc = md5(desaf);
+    sprintf(login, "%d&%s", ticket, soluc);
+
+    res = autenticar_1(&login, clnt);
+
+    clnt_destroy(clnt);
+
+    ret = *res;
+    free(res);
+
+    return ret;
+}
+
+int pedir_tiempo(char *host) {
+
+    CLIENT *clnt;
+    int *res, ret;
+
+    clnt = clnt_create(host, LOGISTICA, LOGISTICA_VERS, "udp");
+    if (clnt == NULL) {
+        clnt_pcreateerror(host);
+        exit(1);
     }
 
-    /*Esperamos la respuesta*/
-    if (read(fd, respuesta, 4) < 1) {
-
-        close(fd);
-        errorFile(__LINE__);
-        return -1;
+    res = pedir_tiempo_1(clnt);
+    if (res == NULL) {
+        clnt_perror(clnt, "call failed:");
     }
 
-    /*Cierro el file descriptor*/
-    close(fd);
+    clnt_destroy(clnt);
 
-    return atoi(respuesta);
+    ret = *res;
+    free(res);
+
+    return ret;
 }
 
 /**
@@ -110,23 +133,9 @@ int analizar_fichero(char *fich) {
 
         nom = strtok(buffer, "&");
         DNS = strtok(NULL, "&");
-        puerto = atoi(strtok(NULL, "&"));
+        ticket = -1;
 
-        /*Intenta conseguir una conexion con el servidor 5 veces, si no lo logra lo ignora*/
-        for (i = 0; i < 5; ++i) {
-
-            /*Para conseguir el tiempo de respuesta de este servidor*/
-            if ((respuesta = conectar_centro('t', puerto, DNS)) >= 0) {
-
-                break;
-            }
-        }
-
-        /*Si no logro conectarse con el servidor*/
-        if (i == 5) {
-
-            continue;
-        }
+        respuesta = pedir_tiempo(DNS);
 
         /*Si consegui un nuevo minimo tiempo de respuesta*/
         if (respuesta < min_resp) {
@@ -134,7 +143,7 @@ int analizar_fichero(char *fich) {
             min_resp = respuesta;
         }
 
-        if((cent = create_distr(nom, DNS, puerto, respuesta)) == NULL) {
+        if((cent = create_distr(nom, DNS, ticket, respuesta)) == NULL) {
 
             return -1;
         }
@@ -163,7 +172,7 @@ void *pedir_gas() {
     iterator it = NULL;            /*Iterador sobre la cola de prioridad*/
     distr cent;                    /*Para el chequeo de la cola*/
     char *desaf, *soluc;           /*Para la autenticacion con el servidor*/
-    int ticket, i;
+    int i;                         /*Variable de uso generico*/
 
     /*Itera sobre todos los centros hasta conseguir uno disponible*/
     for (cent = next_it(it = create_iterator(centros)); ; cent = next_it(it)) {
@@ -179,33 +188,41 @@ void *pedir_gas() {
         //Aqui es que deberia llamar a la funcion de RPC
         //El record de la cola de servidores debe tener ahora un parametro int ticket
         //Y eleminar el de puerto, para la conexion solo se necesita host
-        /*
-         * /*Para intentar autenticar maximo 5 veces*
-         * for (i = 0; i < 5; ++i) {
-         *
-         *     envio = pedir_gasolina_1(cent->ticket);
-         *
-         *     /*Si no estaba correctamente autenticado*
-         *     if (envio == 2) {
-         *
-         *         desaf = pedir_desafio_1();
-         *
-         *         ticket = atoi(strtok(desaf, "&"));
-         *         desaf = strotk(NULL, "&");
-         *
-         *         /*Se calcula la solucion para el desafio*
-         *         soluc = md5(desaf);
-         *
-         *         cent->ticket = autenticar_1(ticket, soluc);
-         *     }
-         * }
-         *
-         */
+        /*Para intentar autenticar maximo 5 veces*/
+        for (i = 0; i < 5; ++i) {
 
-        envio = conectar_centro('g', cent->puerto, cent->DNS);
+            envio = pedir_gasolina(cent->DNS, cent->ticket);
 
-        /*Si obtuvo una respuesta */
+            /*Si no estaba correctamente autenticado*/
+            if (envio == -1) {
+
+                cent->ticket = autenticar(cent->DNS);
+
+                /*Si se autentico exitosamente*/
+                if (cent->ticket != -1) {
+
+                    sem_wait(&semf);
+                    fprintf(out, "Autenticacion: %d, %s, Exitosa\n", tiempo, cent->nombre);
+                    printf(out, "Autenticacion: %d, %s, Exitosa\n", tiempo, cent->nombre);
+                    sem_post(&semf);
+                /*Si no logro autenticarse*/
+                } else {
+
+                    sem_wait(&semf);
+                    fprintf(out, "Autenticacion: %d, %s, Fallida\n", tiempo, cent->nombre);
+                    printf(out, "Autenticacion: %d, %s, Fallida\n", tiempo, cent->nombre);
+                    sem_post(&semf);
+                }
+            /*Si obtuvo una respuesta*/
+            } else {
+
+                break;
+            }
+        }
+
+        /*Si obtuvo una respuesta*/
         if (envio != -1) {
+
             /*Si se enviara la gasolina*/
             if (envio) {
 

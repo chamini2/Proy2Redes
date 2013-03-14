@@ -15,7 +15,7 @@
  * @param  pr     prioridad (tiempo de respuesta) de distr
  * @return        Devuelve el elemento.
  */
-distr create_distr(char *nombre, char *DNS, int puerto, int pr) {
+distr create_distr(char *nombre, char *DNS, int ticket, int pr) {
     distr d;
     char* temp;
     int size;
@@ -41,7 +41,7 @@ distr create_distr(char *nombre, char *DNS, int puerto, int pr) {
     strcpy(temp, DNS);
     d->DNS = temp;
 
-    d->puerto = puerto;
+    d->ticket = ticket;
     d->pr = pr;
 
     return d;
@@ -263,7 +263,7 @@ int llamadaB (int argc, char **argv, char **nombre, char **fich, int *max, int *
  * @param  puerto donde colocara el numero de puerto donde correra el servidor (in-out).
  * @return        un valor indicando si la llamada fue correcta.
  */
-int llamadaC (int argc, char **argv, char **nombre, int *max, int *inv, int *tiempo, int *sum, int *puerto ) {
+int llamadaC (int argc, char **argv, char **nombre, int *max, int *inv, int *tiempo, int *sum) {
     int i, flags;
 
     switch (argc) {
@@ -311,10 +311,6 @@ int llamadaC (int argc, char **argv, char **nombre, int *max, int *inv, int *tie
                     /*Si consigue -s suministro*/
                 } else if (strcmp(argv[i], "-s") == 0) {
                     *sum = atoi(argv[i+1]);
-
-                    /*Si consigue -p puerto del servidor*/
-                } else if (strcmp(argv[i], "-p") == 0) {
-                    *puerto = atoi(argv[i+1]);
 
                     /*Si no es un flag valido*/
                 } else {

@@ -24,6 +24,9 @@ extern "C" char ** pedir_desafio_1_svc(void *, struct svc_req *);
 #define autenticar ((rpc_uint)3)
 extern "C" int * autenticar_1(char **, CLIENT *);
 extern "C" int * autenticar_1_svc(char **, struct svc_req *);
+#define pedir_tiempo ((rpc_uint)4)
+extern "C" int * pedir_tiempo_1(void *, CLIENT *);
+extern "C" int * pedir_tiempo_1_svc(void *, struct svc_req *);
 
 #elif __STDC__
 #define pedir_gasolina ((rpc_uint)1)
@@ -35,6 +38,9 @@ extern  char ** pedir_desafio_1_svc(void *, struct svc_req *);
 #define autenticar ((rpc_uint)3)
 extern  int * autenticar_1(char **, CLIENT *);
 extern  int * autenticar_1_svc(char **, struct svc_req *);
+#define pedir_tiempo ((rpc_uint)4)
+extern  int * pedir_tiempo_1(void *, CLIENT *);
+extern  int * pedir_tiempo_1_svc(void *, struct svc_req *);
 
 #else /* Old Style C */
 #define pedir_gasolina ((rpc_uint)1)
@@ -46,6 +52,9 @@ extern  char ** pedir_desafio_1_svc();
 #define autenticar ((rpc_uint)3)
 extern  int * autenticar_1();
 extern  int * autenticar_1_svc();
+#define pedir_tiempo ((rpc_uint)4)
+extern  int * pedir_tiempo_1();
+extern  int * pedir_tiempo_1_svc();
 #endif /* Old Style C */
 
 #endif /* !_LOGISTICA_H_RPCGEN */

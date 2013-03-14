@@ -7,6 +7,8 @@ program LOGISTICA{
 
         int autenticar(string)   = 3;
 
+        int pedir_tiempo()       = 4;
+
     } = 1; /*numero de version*/
 
-} = 1; /*numero de programa*/
+} = 60910285; /*numero de programa*/
