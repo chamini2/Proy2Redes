@@ -20,12 +20,12 @@ sem_t semf;               /*Semaforo para control de escritura de archivo*/
 FILE *out;                /*Arhcivo del log*/
 
 /**
-* Hace una conexion con el centro indicado y retorna su respuesta.
-* @param  tipo   tipo de peticion.
-* @param  puerto puerto por el cual conectarse con el servidor.
-* @param  DNS    DNS del servidor.
-* @return        Respuesta del servidor.
-*/
+ * Hace una conexion con el centro indicado y retorna su respuesta.
+ * @param  tipo   tipo de peticion.
+ * @param  puerto puerto por el cual conectarse con el servidor.
+ * @param  DNS    DNS del servidor.
+ * @return        Respuesta del servidor.
+ */
 int conectar_centro(char tipo, int puerto, char *DNS) {
 
 char respuesta[4];             /*Respuesta del servidor*/
@@ -86,10 +86,10 @@ struct sockaddr_in Cdir;       /*Estructura para el socket del servidor (centro 
 }
 
 /**
-* Analiza el fichero pasado en la llamada del programa.
-* @param  fich nombre del fichero.
-* @return      Si se hizo correctamente, se retorna la espera minima, sino 0 (false) para indicar falla.
-*/
+ * Analiza el fichero pasado en la llamada del programa.
+ * @param  fich nombre del fichero.
+ * @return      Si se hizo correctamente, se retorna la espera minima, sino 0 (false) para indicar falla.
+ */
 int analizar_fichero(char *fich) {
 
     FILE *fd     = NULL;        /*File descriptor del fichero de centros*/
@@ -155,8 +155,8 @@ int analizar_fichero(char *fich) {
 }
 
 /**
-* Funcion de hilo, donde se hacen las peticiones de gasolina a los servidores.
-*/
+ * Funcion de hilo, donde se hacen las peticiones de gasolina a los servidores.
+ */
 void *pedir_gas() {
 
     int respuesta, envio;          /*Tiempo de respuesta del centro y si enviara la gasolina*/
