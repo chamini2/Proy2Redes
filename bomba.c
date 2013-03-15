@@ -2,10 +2,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <semaphore.h>
+#include <pthread.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <netdb.h>
 #include <strings.h>
+#include <unistd.h>
 #include "queue.h"
 #include "errores.h"
 #include "logistica.h"
@@ -21,8 +23,14 @@ sem_t semf;                 /*Semaforo para control de escritura de archivo*/
 FILE *out;                  /*Arhcivo del log*/
 
 char *md5(char *s) {
+
+    char *args[] = {"md5", "-s", NULL};
+
+    args[2] = s;
+
+    execv("./md5-c/md5", args);
+
     return NULL;
-    //exec
 }
 
 /*
@@ -126,13 +134,12 @@ int pedir_tiempo_centro(char *host) {
  */
 int analizar_fichero(char *fich) {
 
-    FILE *fd     = NULL;        /*File descriptor del fichero de centros*/
+    FILE *fd = NULL;            /*File descriptor del fichero de centros*/
     char buffer[100];           /*Buffer de lectura para el archivo.*/
     distr cent;                 /*Variable que representa un centro*/
     char *nom, *DNS;            /*Nombre y DNS de centro de distribucion*/
     int ticket, respuesta;      /*Ticket y tiempo de respuesta de centro de distribucion*/
     int min_resp = MAX_INT;     /*Tiempo de respuesta minimo de los centros de distribucion*/
-    int i;                      /*Variable de uso generico*/
 
     /*Abre el archivo*/
     if ((fd = fopen(fich, "r")) == NULL) {
@@ -154,7 +161,7 @@ int analizar_fichero(char *fich) {
             min_resp = respuesta;
         }
 
-        if((cent = create_distr(nom, DNS, ticket, respuesta)) == NULL) {
+        if ((cent = create_distr(nom, DNS, ticket, respuesta)) == NULL) {
 
             return -1;
         }
@@ -182,7 +189,6 @@ void *pedir_gas() {
     int respuesta, envio;          /*Tiempo de respuesta del centro y si enviara la gasolina*/
     iterator it = NULL;            /*Iterador sobre la cola de prioridad*/
     distr cent;                    /*Para el chequeo de la cola*/
-    char *desaf, *soluc;           /*Para la autenticacion con el servidor*/
     int i;                         /*Variable de uso generico*/
 
     /*Itera sobre todos los centros hasta conseguir uno disponible*/
@@ -199,6 +205,7 @@ void *pedir_gas() {
         //Aqui es que deberia llamar a la funcion de RPC
         //El record de la cola de servidores debe tener ahora un parametro int ticket
         //Y eleminar el de puerto, para la conexion solo se necesita host
+
         /*Para intentar autenticar maximo 5 veces*/
         for (i = 0; i < 5; ++i) {
 
@@ -224,6 +231,10 @@ void *pedir_gas() {
                     printf("Autenticacion: %d, %s, Fallida\n", tiempo, cent->nombre);
                     sem_post(&semf);
                 }
+            /*Si hay una autenticacion en proceso*/
+            } else if (envio == -2) {
+
+                sleep(5);
             /*Si obtuvo una respuesta*/
             } else {
 

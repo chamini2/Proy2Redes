@@ -180,7 +180,7 @@ void imprimirEC() {
  */
 int llamadaB (int argc, char **argv, char **nombre, char **fich, int *max, int *inv, int *con) {
 
-    int i, flags;
+    int i;
 
     switch (argc) {
 
@@ -264,7 +264,7 @@ int llamadaB (int argc, char **argv, char **nombre, char **fich, int *max, int *
  * @return        un valor indicando si la llamada fue correcta.
  */
 int llamadaC (int argc, char **argv, char **nombre, int *max, int *inv, int *tiempo, int *sum) {
-    int i, flags;
+    int i;
 
     switch (argc) {
 

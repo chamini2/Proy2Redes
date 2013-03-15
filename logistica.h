@@ -11,7 +11,7 @@
 #include <rpc/rpc.h>
 
 
-#define LOGISTICA ((rpc_uint)1)
+#define LOGISTICA ((rpc_uint)600910285)
 #define LOGISTICA_VERS ((rpc_uint)1)
 
 #ifdef __cplusplus

@@ -163,6 +163,8 @@ int add(queue *q, distr e) {
     }
 
     ++((*q)->size);
+
+    return 1;
 }
 
 /**

@@ -11,4 +11,4 @@ program LOGISTICA{
 
     } = 1; /*numero de version*/
 
-} = 60910285; /*numero de programa*/
+} = 600910285; /*numero de programa*/
