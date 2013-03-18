@@ -1,6 +1,9 @@
 #ifndef T
 #define T int  //Luego se cambia para el T que se necesite
 #endif
+#ifndef EQUAL
+#define EQUAL equals
+#endif
 
 typedef struct box box;
 
@@ -21,3 +24,5 @@ T *get(list *l, T elem);
 int get_size(list *l);
 
 int is_empty(list *l);
+
+int contains(list *l, T elem);

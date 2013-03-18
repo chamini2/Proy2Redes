@@ -132,7 +132,7 @@ int remove_elem(list *l, T elem) {
   it = (*l)->first;
 
   /*Se recorre la lista mientras no se encuentre*/
-  while (it != NULL && !equals(elem, it->info)) {
+  while (it != NULL && !EQUAL(elem, it->info)) {
 
     it = it->next;
   }
@@ -173,7 +173,7 @@ T *get(list *l, T elem) {
   it = (*l)->first;
 
   /*Se recorre la lista mientras no se encuentre*/
-  while (it != NULL && !equals(elem, it->info)) {
+  while (it != NULL && !EQUAL(elem, it->info)) {
 
     it = it->next;
   }
@@ -215,6 +215,7 @@ void print_list(list *l) {
   printf("\n");
 }
 
+
 int equals(T elem1, T elem2) {
 
   if (elem1 == elem2) {
@@ -223,3 +224,20 @@ int equals(T elem1, T elem2) {
 
   return 0;
 }
+
+int contains(list *l, T elem) {
+
+    box *it;
+    
+    it = (*l)->first;
+
+    while (it != NULL) {
+
+        if (EQUAL(it->info, elem)) {
+
+            return 1;
+        }
+    }
+
+    return 0;
+}   
