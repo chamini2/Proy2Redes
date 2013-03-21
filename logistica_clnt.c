@@ -10,26 +10,26 @@ static struct timeval TIMEOUT = { 25, 0 };
 
 int *
 pedir_gasolina_1(argp, clnt)
-	int *argp;
+	char **argp;
 	CLIENT *clnt;
 {
 	static int clnt_res;
 
 	memset((char *)&clnt_res, 0, sizeof(clnt_res));
-	if (clnt_call(clnt, pedir_gasolina, xdr_int, argp, xdr_int, &clnt_res, TIMEOUT) != RPC_SUCCESS)
+	if (clnt_call(clnt, pedir_gasolina, xdr_wrapstring, argp, xdr_int, &clnt_res, TIMEOUT) != RPC_SUCCESS)
 		return (NULL);
 	return (&clnt_res);
 }
 
 char **
 pedir_desafio_1(argp, clnt)
-	void *argp;
+	char **argp;
 	CLIENT *clnt;
 {
 	static char *clnt_res;
 
 	memset((char *)&clnt_res, 0, sizeof(clnt_res));
-	if (clnt_call(clnt, pedir_desafio, xdr_void, argp, xdr_wrapstring, &clnt_res, TIMEOUT) != RPC_SUCCESS)
+	if (clnt_call(clnt, pedir_desafio, xdr_wrapstring, argp, xdr_wrapstring, &clnt_res, TIMEOUT) != RPC_SUCCESS)
 		return (NULL);
 	return (&clnt_res);
 }

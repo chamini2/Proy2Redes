@@ -16,11 +16,11 @@
 
 #ifdef __cplusplus
 #define pedir_gasolina ((rpc_uint)1)
-extern "C" int * pedir_gasolina_1(int *, CLIENT *);
-extern "C" int * pedir_gasolina_1_svc(int *, struct svc_req *);
+extern "C" int * pedir_gasolina_1(char **, CLIENT *);
+extern "C" int * pedir_gasolina_1_svc(char **, struct svc_req *);
 #define pedir_desafio ((rpc_uint)2)
-extern "C" char ** pedir_desafio_1(void *, CLIENT *);
-extern "C" char ** pedir_desafio_1_svc(void *, struct svc_req *);
+extern "C" char ** pedir_desafio_1(char **, CLIENT *);
+extern "C" char ** pedir_desafio_1_svc(char **, struct svc_req *);
 #define autenticar ((rpc_uint)3)
 extern "C" int * autenticar_1(char **, CLIENT *);
 extern "C" int * autenticar_1_svc(char **, struct svc_req *);
@@ -30,11 +30,11 @@ extern "C" int * pedir_tiempo_1_svc(void *, struct svc_req *);
 
 #elif __STDC__
 #define pedir_gasolina ((rpc_uint)1)
-extern  int * pedir_gasolina_1(int *, CLIENT *);
-extern  int * pedir_gasolina_1_svc(int *, struct svc_req *);
+extern  int * pedir_gasolina_1(char **, CLIENT *);
+extern  int * pedir_gasolina_1_svc(char **, struct svc_req *);
 #define pedir_desafio ((rpc_uint)2)
-extern  char ** pedir_desafio_1(void *, CLIENT *);
-extern  char ** pedir_desafio_1_svc(void *, struct svc_req *);
+extern  char ** pedir_desafio_1(char **, CLIENT *);
+extern  char ** pedir_desafio_1_svc(char **, struct svc_req *);
 #define autenticar ((rpc_uint)3)
 extern  int * autenticar_1(char **, CLIENT *);
 extern  int * autenticar_1_svc(char **, struct svc_req *);

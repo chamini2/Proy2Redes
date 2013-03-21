@@ -16,6 +16,8 @@
 #include <netinet/in.h>
 #include <syslog.h>
 
+#include "centro.h"
+
 #ifdef __STDC__
 #define SIG_PF void(*)(int)
 #endif
@@ -71,7 +73,8 @@ logistica_1(rqstp, transp)
 	SVCXPRT *transp;
 {
 	union {
-		int pedir_gasolina_1_arg;
+		char *pedir_gasolina_1_arg;
+		char *pedir_desafio_1_arg;
 		char *autenticar_1_arg;
 	} argument;
 	char *result;
@@ -86,13 +89,13 @@ logistica_1(rqstp, transp)
 		return;
 
 	case pedir_gasolina:
-		xdr_argument = xdr_int;
+		xdr_argument = xdr_wrapstring;
 		xdr_result = xdr_int;
 		local = (char *(*)()) pedir_gasolina_1_svc;
 		break;
 
 	case pedir_desafio:
-		xdr_argument = xdr_void;
+		xdr_argument = xdr_wrapstring;
 		xdr_result = xdr_wrapstring;
 		local = (char *(*)()) pedir_desafio_1_svc;
 		break;

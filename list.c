@@ -6,7 +6,7 @@
 
 /*Struct para la caja de info de la lista*/
 struct box {
-  T info;
+  T *info;
   struct box *next, *prev;
 };
 
@@ -53,6 +53,7 @@ void destroy_list(list *l) {
   while (it != NULL) {
 
     aux = it;
+    free(aux->info);
     it = it->next;
     free(aux);
   }
@@ -64,9 +65,14 @@ void destroy_list(list *l) {
 }
 
 /*Crea una caja de la lista*/
-box *create_box(T elem) {
+box *create_box(T *elem) {
 
   box *new;
+
+  if (elem == NULL) {
+
+    return NULL;
+  }
 
   new = (box*)malloc(sizeof(struct box));
 
@@ -85,7 +91,7 @@ box *create_box(T elem) {
 }
 
 /*Agrega un elemento*/
-int add(list *l, T elem) {
+int add_list(list *l, T *elem) {
 
   box *new;
 
@@ -109,7 +115,7 @@ int add(list *l, T elem) {
   }
 
   /*Si la lista esta vacia, todo apunta al elemento*/
-  if (is_empty(l)) {
+  if (is_empty_list(l)) {
 
     (*l)->first = new;
     (*l)->last = new;
@@ -122,14 +128,25 @@ int add(list *l, T elem) {
   }
 
   ++(*l)->size;
+  return 1;
 }
 
 /*Elimina el elemento pedido*/
-int remove_elem(list *l, T elem) {
+int remove_elem_list(list *l, T *elem) {
 
   box *it;
 
   it = (*l)->first;
+
+  if (l == NULL) {
+
+    return 0;
+  }
+
+  if (elem == NULL) {
+
+    return 0;
+  }
 
   /*Se recorre la lista mientras no se encuentre*/
   while (it != NULL && !EQUAL(elem, it->info)) {
@@ -157,18 +174,29 @@ int remove_elem(list *l, T elem) {
     it->prev->next = it->next;
     it->next->prev = it->prev;
   }
-  
+
+  free(it->info);
   free(it);
-  --(*l)->size;
+  --((*l)->size);
   return 1;
 }
 
 
 /*Obtiene el apuntador al elemento tipo T*/
-T *get(list *l, T elem) {
+T *get_list(list *l, T *elem) {
 
   box *it;
   T *e;
+
+  if (l == NULL) {
+
+    return NULL;
+  }
+
+  if (elem == NULL) {
+
+    return NULL;
+  }
 
   it = (*l)->first;
 
@@ -184,20 +212,30 @@ T *get(list *l, T elem) {
     return NULL;
   }
 
-  *e = it->info;
+  e = it->info;
   return e;
 }
 
 
 /*Obtiene el tamaño*/
-int get_size(list *l) {
+int get_size_list(list *l) {
+
+  if (l == NULL) {
+
+    return 0;
+  }
 
   return (*l)->size;
 }
 
 /*True si l esta vacia, false si no*/
-int is_empty(list *l) {
-  
+int is_empty_list(list *l) {
+
+  if (l == NULL) {
+
+    return 1;
+  }
+
   return (*l)->size == 0;
 }
 
@@ -207,37 +245,83 @@ void print_list(list *l) {
 
   it = (*l)->first;
 
+  if (l == NULL) {
+
+    return;
+  }
+
   while (it != NULL) {
 
-    printf("%d, ", it->info);
+    printf("%d, ", *(it->info));
     it = it->next;
   }
+
   printf("\n");
 }
 
 
-int equals(T elem1, T elem2) {
+int equals(T *a, T *b) {
 
-  if (elem1 == elem2) {
+  if (*a == *b) {
     return 1;
   }
 
   return 0;
 }
 
-int contains(list *l, T elem) {
+int contains_list(list *l, T *elem) {
 
-    box *it;
-    
-    it = (*l)->first;
+  box *it;
 
-    while (it != NULL) {
-
-        if (EQUAL(it->info, elem)) {
-
-            return 1;
-        }
-    }
+  if (l == NULL) {
 
     return 0;
-}   
+  }
+
+  if (elem == NULL) {
+
+    return 0;
+  }
+
+  it = (*l)->first;
+
+  while (it != NULL) {
+
+    if (EQUAL(it->info, elem)) {
+
+      return 1;
+    }
+  }
+
+  return 0;
+}
+
+
+iter list_iter(list l) {
+
+  if (l == NULL) {
+    return NULL;
+  }
+
+  return l->first;
+}
+
+T *next_iter(iter *it) {
+
+  T *elem;
+
+  if ((it == NULL) || (*it == NULL)) {
+    return NULL;
+  }
+
+  elem = (*it)->info;
+
+  *it = (*it)->next;
+
+  return elem;
+}
+
+int has_next_iter(iter it) {
+
+  return it != NULL;
+}

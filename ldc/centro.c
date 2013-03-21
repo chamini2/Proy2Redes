@@ -72,9 +72,7 @@ int autenticado(pase *p) {
 }
 
 int *
-pedir_gasolina_1(argp, rqstp)
-    char **argp;
-    struct svc_req *rqstp;
+pedir_gasolina_1_svc(char **argp, struct svc_req *rqstp)
 {
 
     static int result;
@@ -152,9 +150,7 @@ pedir_gasolina_1(argp, rqstp)
 }
 
 char **
-pedir_desafio_1(argp, rqstp)
-    char **argp;
-    struct svc_req *rqstp;
+pedir_desafio_1_svc(char **argp, struct svc_req *rqstp)
 {
 
     static char *result;
@@ -196,9 +192,7 @@ pedir_desafio_1(argp, rqstp)
 }
 
 int *
-autenticar_1(argp, rqstp)
-    char **argp;
-    struct svc_req *rqstp;
+autenticar_1_svc(char **argp, struct svc_req *rqstp)
 {
 
     static int result;
@@ -237,9 +231,7 @@ autenticar_1(argp, rqstp)
 }
 
 int *
-pedir_tiempo_1(argp, rqstp)
-    void *argp;
-    struct svc_req *rqstp;
+pedir_tiempo_1_svc(void *argp, struct svc_req *rqstp)
 {
 
     static int result;
