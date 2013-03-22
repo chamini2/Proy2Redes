@@ -1,7 +1,7 @@
-int errorMem(int line);
+void errorMem(int line);
 
-int errorHilo(int line);
+void errorHilo(int line);
 
-int errorSocket(int line);
+void errorSocket(int line);
 
-int errorFile(int line);
+void errorFile(int line);

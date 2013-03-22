@@ -7,4 +7,8 @@ typedef struct pase {
     char *contrasena;
 } pase;
 
+#define T pase
+
 int equals_pase(pase *a, pase *b);
+
+#define EQUAL equals_pase

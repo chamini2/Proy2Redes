@@ -16,6 +16,15 @@ struct list {
   int size;
 };
 
+/*Funcion comparadora de pases*/
+int equals_pase(pase *a, pase *b) {
+      
+    if ((a->numero == b->numero) && (strcmp(a->login, b->login) == 0)) {
+        return 1;
+    }
+
+    return 0;
+}
 
 /*Crea una lista inicializada*/
 list create_list() {
@@ -90,14 +99,14 @@ box *create_box(T *elem) {
 
 }
 
+
 /*Agrega un elemento*/
 int add_list(list *l, T *elem) {
-
+  
   box *new;
 
   if (l == NULL) {
-
-    return 0;
+    *l = create_list();
   }
 
   if (elem == NULL) {
@@ -107,15 +116,15 @@ int add_list(list *l, T *elem) {
 
   /*Creamos el elemento*/
   new = create_box(elem);
-
+ 
   /*En caso de que no se pudo crear*/
   if (new == NULL) {
 
     return 0;
   }
-
+  
   /*Si la lista esta vacia, todo apunta al elemento*/
-  if (is_empty_list(l)) {
+  if ((*l)->size == 0) {
 
     (*l)->first = new;
     (*l)->last = new;
@@ -126,6 +135,9 @@ int add_list(list *l, T *elem) {
     new->prev = (*l)->last;
     (*l)->last = new;
   }
+
+
+  printf("---------------------------->%s\n", (*l)->first->info->login);
 
   ++(*l)->size;
   return 1;
@@ -188,21 +200,23 @@ T *get_list(list *l, T *elem) {
   box *it;
   T *e;
 
+  printf("---------------------------->%s\n", (*l)->first->info->login);
   if (l == NULL) {
-
+    printf("l NULL\n");
     return NULL;
   }
 
   if (elem == NULL) {
-
+    printf("elem NULL\n");
     return NULL;
   }
 
   it = (*l)->first;
 
+  
   /*Se recorre la lista mientras no se encuentre*/
   while (it != NULL && !EQUAL(elem, it->info)) {
-
+    
     it = it->next;
   }
 
@@ -239,6 +253,7 @@ int is_empty_list(list *l) {
   return (*l)->size == 0;
 }
 
+
 void print_list(list *l) {
 
   box *it;
@@ -249,25 +264,16 @@ void print_list(list *l) {
 
     return;
   }
-
+  
+  printf("LISTA:");
   while (it != NULL) {
 
-    printf("%d, ", *(it->info));
     it = it->next;
   }
 
   printf("\n");
 }
 
-
-int equals(T *a, T *b) {
-
-  if (*a == *b) {
-    return 1;
-  }
-
-  return 0;
-}
 
 int contains_list(list *l, T *elem) {
 

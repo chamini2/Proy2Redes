@@ -1,12 +1,11 @@
+#include "list.h"
 struct args {
   int argc;
-  char const *argv[];
+  char **argv;
 };
-
-int equals_pase(pase *a, pase *b);
 
 int autenticado(pase *p);
 
 void *control_gas();
 
-int principal(struct args arg);
+void *principal(void *arg);

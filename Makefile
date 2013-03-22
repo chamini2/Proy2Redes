@@ -1,6 +1,6 @@
 FLAGS = -pedantic -std=c99 -Wall -Wextra -Wwrite-strings
 
-all: cleanC rpc bomba centro md5
+all: cleanC centro bomba md5
 
 #bomba (cliente)
 bomba: bomba.o list.o errores.o extra.o queue.o logistica_clnt.c
@@ -31,7 +31,7 @@ queue.o: queue.c queue.h errores.h
 	gcc -c $(FLAGS) queue.c
 
 list.o: list.c list.h
-	gcc -c $(FLAGS) list.c
+	gcc -c $(FLAGS) list.c 
 
 #RPC
 rpc: logistica.x

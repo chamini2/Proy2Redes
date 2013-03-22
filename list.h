@@ -1,3 +1,4 @@
+#include "pase.h"
 #ifndef T
   #define T int  //Luego se cambia para el T que se necesite
 #endif
@@ -16,6 +17,8 @@ list create_list();
 void destroy_list();
 
 int add_list(list *l, T *elem);
+
+void print_ticket(T *p);
 
 int remove_elem_list(list *l, T *elem);
 

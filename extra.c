@@ -310,7 +310,7 @@ int llamadaB (int argc, char **argv, char **nombre, char **fich, int *max, int *
                 if (strcmp(argv[i], "-n") == 0) {
                     if ((*nombre = (char *) malloc((strlen(argv[i+1]) + 1) * sizeof(char))) == NULL) {
 
-                        return errorMem(__LINE__);
+                        errorMem(__LINE__);
                     }
                     strcpy(*nombre,argv[i+1]);
 
@@ -330,7 +330,7 @@ int llamadaB (int argc, char **argv, char **nombre, char **fich, int *max, int *
                 } else if (strcmp(argv[i], "-fc") == 0) {
                     if ((*fich = (char *) malloc((strlen(argv[i+1]) + 1) * sizeof(char))) == NULL) {
 
-                        return errorMem(__LINE__);
+                        errorMem(__LINE__);
                     }
                     strcpy(*fich,argv[i+1]);
 
@@ -378,7 +378,7 @@ int llamadaC (int argc, char **argv, char **nombre, int *max, int *inv, int *tie
             return -1;
         default:           /*flags*/
             /*si no tiene el numero de flags adecuado*/
-            if (argc != 13) {
+            if (argc != 11) {
                 imprimirEC();
                 return -1;
             }

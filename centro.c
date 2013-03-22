@@ -8,12 +8,8 @@
 #include "extra.h"
 #include "errores.h"
 #include "logistica.h"
-#include "pase.h"
-#define QLENGTH 5
-#define T pase
-#define EQUAL equals_pase
-#include "list.h"
 #include "centro.h"
+#define QLENGTH 5
 
 char  *nombre  = NULL;    /*Nombre de la bomba*/
 int   gas      = 0;       /*Cantidad de gasolina actual*/
@@ -26,16 +22,8 @@ sem_t sem;                /*Semaforo para control de acceso a 'gas'*/
 sem_t semf;               /*Semaforo para control de escritura en el log*/
 sem_t seml;               /*Semaforo para la lista*/
 FILE  *out;               /*Arhcivo del log*/
-list  tickets;            /*Tickets de los clientes*/
+list  tickets = NULL;     /*Tickets de los clientes*/
 
-int equals_pase(pase *a, pase *b) {
-
-    if ((a->numero == b->numero) && (strcmp(a->login, b->login) == 0)) {
-        return 1;
-    }
-
-    return 0;
-}
 
 int autenticado(pase *p) {
 
@@ -70,19 +58,17 @@ int autenticado(pase *p) {
 
     return -1;
 }
-
 int *
-pedir_gasolina_1(argp, rqstp)
-    char **argp;
-    struct svc_req *rqstp;
+pedir_gasolina_1_svc(char **argp, struct svc_req *rqstp)
 {
 
     static int result;
     char *nomB;
+    char* aux = (char*) malloc(sizeof(char)*5);
     pase p;
 
-    p.numero       = atoi(strtok("&", *argp));
-    p.login        = nomB = strtok("&", NULL);
+    p.numero       = atoi(strtok(*argp, "&"));
+    p.login        = nomB = strtok(NULL, "&");
     p.contrasena   = NULL;
     p.tiempo       = tiempo;
     p.autenticando = 0;
@@ -152,9 +138,7 @@ pedir_gasolina_1(argp, rqstp)
 }
 
 char **
-pedir_desafio_1(argp, rqstp)
-    char **argp;
-    struct svc_req *rqstp;
+pedir_desafio_1_svc(char **argp, struct svc_req *rqstp)
 {
 
     static char *result;
@@ -195,10 +179,16 @@ pedir_desafio_1(argp, rqstp)
     return &result;
 }
 
+void print_pase(pase *p) {
+
+  printf("PASE");
+  printf("tiempo: %d\n", p->tiempo);
+  printf("login: %s\n", p->login);
+  printf("numero: %d\n", p->numero);
+}
+
 int *
-autenticar_1(argp, rqstp)
-    char **argp;
-    struct svc_req *rqstp;
+autenticar_1_svc(char **argp, struct svc_req *rqstp)
 {
 
     static int result;
@@ -212,16 +202,21 @@ autenticar_1(argp, rqstp)
         return &result;
     }
 
-    comp->numero       = atoi(strtok("&", *argp));
-    comp->login        = nomB = strtok("&", NULL);
-    comp->contrasena   = strtok("&", NULL);
+    comp->numero       = atoi(strtok(*argp, "&"));
+    comp->login        = nomB = strtok(NULL, "&");
+    comp->contrasena   = strtok(NULL, "&");
     comp->tiempo       = tiempo;
     comp->autenticando = 0;
 
+
     sem_wait(&seml);
+    printf("%s\n",tickets->first->info->login);
     aux = get_list(&tickets, comp);
     sem_post(&seml);
-
+    if (aux == NULL){
+      printf("aux es null\n");
+      exit(1);
+    }
     if (strcmp(comp->contrasena, aux->contrasena) == 0) {
 
         aux->autenticando = 0;
@@ -237,9 +232,7 @@ autenticar_1(argp, rqstp)
 }
 
 int *
-pedir_tiempo_1(argp, rqstp)
-    void *argp;
-    struct svc_req *rqstp;
+pedir_tiempo_1_svc(void *argp, struct svc_req *rqstp)
 {
 
     static int result;
@@ -288,19 +281,22 @@ void *control_gas(){
     exit(0);
 }
 
-int principal(struct args arg) {
-    int argc = arg.argc;
-    char **argv = arg.argv;
+void *principal(void *arg) {
+    struct args *flags = (struct args*) arg;
+    int argc = flags->argc;
+    char **argv = (char **) flags->argv;
     char flog[50] = "log_";             /*Nombre del archivo de log*/
 
     /*Inicializacion semaforo en 1*/
     sem_init(&sem , 0, 1);
     sem_init(&semf, 0, 1);
     sem_init(&seml, 0, 1);
-
+    
+    /*Creamos la lista de tickets*/
+    tickets = create_list();
     /*procedimiento que obtiene los valores generales*/
     if (llamadaC(argc, argv, &nombre, &max, &gas, &resp, &entrada) < 0) {
-        return -1;
+        exit(1);
     }
 
     /*Arma el nombre del archivo de log*/
@@ -309,7 +305,7 @@ int principal(struct args arg) {
     /*Abre el archivo de log*/
     if ((out = fopen(flog, "w")) == NULL) {
 
-        return errorFile(__LINE__);
+        errorFile(__LINE__);
     }
 
     fprintf(out, "Estado inicial: %d\n", gas);

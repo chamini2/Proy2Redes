@@ -6,55 +6,50 @@
 #ifndef _LOGISTICA_H_RPCGEN
 #define _LOGISTICA_H_RPCGEN
 
-#define RPCGEN_VERSION	199506
-
 #include <rpc/rpc.h>
 
 
-#define LOGISTICA ((rpc_uint)600910285)
-#define LOGISTICA_VERS ((rpc_uint)1)
-
 #ifdef __cplusplus
-#define pedir_gasolina ((rpc_uint)1)
-extern "C" int * pedir_gasolina_1(char **, CLIENT *);
-extern "C" int * pedir_gasolina_1_svc(char **, struct svc_req *);
-#define pedir_desafio ((rpc_uint)2)
-extern "C" char ** pedir_desafio_1(char **, CLIENT *);
-extern "C" char ** pedir_desafio_1_svc(char **, struct svc_req *);
-#define autenticar ((rpc_uint)3)
-extern "C" int * autenticar_1(char **, CLIENT *);
-extern "C" int * autenticar_1_svc(char **, struct svc_req *);
-#define pedir_tiempo ((rpc_uint)4)
-extern "C" int * pedir_tiempo_1(void *, CLIENT *);
-extern "C" int * pedir_tiempo_1_svc(void *, struct svc_req *);
+extern "C" {
+#endif
 
-#elif __STDC__
-#define pedir_gasolina ((rpc_uint)1)
+
+#define LOGISTICA 600910285
+#define LOGISTICA_VERS 1
+
+#if defined(__STDC__) || defined(__cplusplus)
+#define pedir_gasolina 1
 extern  int * pedir_gasolina_1(char **, CLIENT *);
 extern  int * pedir_gasolina_1_svc(char **, struct svc_req *);
-#define pedir_desafio ((rpc_uint)2)
+#define pedir_desafio 2
 extern  char ** pedir_desafio_1(char **, CLIENT *);
 extern  char ** pedir_desafio_1_svc(char **, struct svc_req *);
-#define autenticar ((rpc_uint)3)
+#define autenticar 3
 extern  int * autenticar_1(char **, CLIENT *);
 extern  int * autenticar_1_svc(char **, struct svc_req *);
-#define pedir_tiempo ((rpc_uint)4)
+#define pedir_tiempo 4
 extern  int * pedir_tiempo_1(void *, CLIENT *);
 extern  int * pedir_tiempo_1_svc(void *, struct svc_req *);
+extern int logistica_1_freeresult (SVCXPRT *, xdrproc_t, caddr_t);
 
-#else /* Old Style C */
-#define pedir_gasolina ((rpc_uint)1)
+#else /* K&R C */
+#define pedir_gasolina 1
 extern  int * pedir_gasolina_1();
 extern  int * pedir_gasolina_1_svc();
-#define pedir_desafio ((rpc_uint)2)
+#define pedir_desafio 2
 extern  char ** pedir_desafio_1();
 extern  char ** pedir_desafio_1_svc();
-#define autenticar ((rpc_uint)3)
+#define autenticar 3
 extern  int * autenticar_1();
 extern  int * autenticar_1_svc();
-#define pedir_tiempo ((rpc_uint)4)
+#define pedir_tiempo 4
 extern  int * pedir_tiempo_1();
 extern  int * pedir_tiempo_1_svc();
-#endif /* Old Style C */
+extern int logistica_1_freeresult ();
+#endif /* K&R C */
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* !_LOGISTICA_H_RPCGEN */

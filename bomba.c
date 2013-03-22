@@ -28,13 +28,14 @@ int pedir_gasolina_centro(char *host, char *arg) {
 
     CLIENT *clnt;
     int *res, ret;
-
+  
     clnt = clnt_create(host, LOGISTICA, LOGISTICA_VERS, "tcp");
     if (clnt == NULL) {
         clnt_pcreateerror(host);
         exit(1);
     }
 
+    printf("Llamando a pedir_gasolina_1\n");
     res = pedir_gasolina_1(&arg, clnt);
     if (res == NULL) {
         clnt_perror(clnt, "call failed:");
@@ -43,7 +44,7 @@ int pedir_gasolina_centro(char *host, char *arg) {
     clnt_destroy(clnt);
 
     ret = *res;
-    free(res);
+    //free(res);
 
     return ret;
 }
@@ -55,7 +56,6 @@ int autenticar_centro(char *host) {
     char **user, *soluc, *desaf;
     char *login;
     int ticket;
-    void *pvoid;
 
     clnt = clnt_create(host, LOGISTICA, LOGISTICA_VERS, "tcp");
     if (clnt == NULL) {
@@ -63,6 +63,7 @@ int autenticar_centro(char *host) {
         exit(1);
     }
 
+    printf("Llamando a pedir_desafio_1\n");
     user = pedir_desafio_1(&nombre, clnt);
     ticket = atoi(strtok(*user, "&"));
     desaf = strtok(NULL, "&");
@@ -79,6 +80,7 @@ int autenticar_centro(char *host) {
 
     sprintf(login, "%d&%s&%s", ticket, nombre, soluc);
 
+    printf("Llamando a autenticar_1\n");
     res = autenticar_1(&login, clnt);
 
     clnt_destroy(clnt);
@@ -102,6 +104,7 @@ int pedir_tiempo_centro(char *host) {
         exit(1);
     }
 
+    printf("Llamando a pedir tiempo\n");
     res = pedir_tiempo_1(pvoid, clnt);
     if (res == NULL) {
         clnt_perror(clnt, "call failed:");
@@ -110,7 +113,7 @@ int pedir_tiempo_centro(char *host) {
     clnt_destroy(clnt);
 
     ret = *res;
-    free(res);
+    //free(res);
 
     return ret;
 }
@@ -131,7 +134,7 @@ int analizar_fichero(char *fich) {
 
     /*Abre el archivo*/
     if ((fd = fopen(fich, "r")) == NULL) {
-        return errorFile(__LINE__);
+        errorFile(__LINE__);
     }
 
     /*Lee el archivo hasta el final*/
@@ -180,14 +183,11 @@ int autenticarse(distr cent) {
         return -1;
     }
 
-    //Aqui es que deberia llamar a la funcion de RPC
-    //El record de la cola de servidores debe tener ahora un parametro int ticket
-    //Y eleminar el de puerto, para la conexion solo se necesita host
-
     /*Para intentar autenticar maximo 5 veces*/
     for (i = 0; i < 5; ++i) {
 
         sprintf(login, "%d&%s", cent->ticket, nombre);
+
 
         envio = pedir_gasolina_centro(cent->DNS, login);
 
@@ -332,7 +332,7 @@ int main(int argc, char **argv) {
     /*Abre el archivo de log*/
     if ((out = fopen(flog, "w")) == NULL) {
 
-        return errorFile(__LINE__);
+        errorFile(__LINE__);
     }
 
     fprintf(out, "Estado inicial: %d\n", gas);
