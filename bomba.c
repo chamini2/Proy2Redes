@@ -35,7 +35,6 @@ int pedir_gasolina_centro(char *host, char *arg) {
         exit(1);
     }
 
-    printf("Llamando a pedir_gasolina_1\n");
     res = pedir_gasolina_1(&arg, clnt);
     if (res == NULL) {
         clnt_perror(clnt, "call failed:");
@@ -63,7 +62,6 @@ int autenticar_centro(char *host) {
         exit(1);
     }
 
-    printf("Llamando a pedir_desafio_1\n");
     user = pedir_desafio_1(&nombre, clnt);
     ticket = atoi(strtok(*user, "&"));
     desaf = strtok(NULL, "&");
@@ -79,15 +77,14 @@ int autenticar_centro(char *host) {
     }
 
     sprintf(login, "%d&%s&%s", ticket, nombre, soluc);
-
-    printf("Llamando a autenticar_1\n");
+  
     res = autenticar_1(&login, clnt);
 
     clnt_destroy(clnt);
 
     ret = *res;
-    free(res);
-    free(user);
+    //free(res);
+    //free(user);
 
     return ret;
 }
@@ -104,7 +101,6 @@ int pedir_tiempo_centro(char *host) {
         exit(1);
     }
 
-    printf("Llamando a pedir tiempo\n");
     res = pedir_tiempo_1(pvoid, clnt);
     if (res == NULL) {
         clnt_perror(clnt, "call failed:");

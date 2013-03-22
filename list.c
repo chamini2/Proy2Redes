@@ -137,7 +137,6 @@ int add_list(list *l, T *elem) {
   }
 
 
-  printf("---------------------------->%s\n", (*l)->first->info->login);
 
   ++(*l)->size;
   return 1;
@@ -200,7 +199,6 @@ T *get_list(list *l, T *elem) {
   box *it;
   T *e;
 
-  printf("---------------------------->%s\n", (*l)->first->info->login);
   if (l == NULL) {
     printf("l NULL\n");
     return NULL;
