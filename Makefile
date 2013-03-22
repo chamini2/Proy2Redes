@@ -1,4 +1,4 @@
-FLAGS = -g -pedantic -std=c99 -Wall -Wextra -Wwrite-strings
+FLAGS = -pedantic -std=c99 -Wall -Wextra -Wwrite-strings
 
 all: cleanC centro bomba md5
 
