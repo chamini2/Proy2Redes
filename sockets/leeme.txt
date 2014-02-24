@@ -1,0 +1,59 @@
+#########################################################################################
+#                                                                                       #
+#                       PROYECTO 1: Redes de Computadores                               #
+#                       AUTORES: Matteo Ferrando, Juan Carlos Arocha                    #
+#                       CARNET: 09-10285, 09-10055                                      #
+#                                                                                       #
+#########################################################################################
+
+Solucion planteada:
+    Tanto para la Bomba (Cliente), como para el Centro (Servidor) se planteó
+    una solución haciendo uso de hilos (pthread) para el manejo de concurrencia
+    de conexiones entrantes y salientes.
+
+    Bomba:
+        Se crea un hilo que se encagara de leer el fichero con 
+        la información de los Centros, éste hace una conexión con cada uno de
+        los centros para obtener su tiempo de respuesta.
+
+        Luego, el hilo principal se encarga del manjeo de la salida de gasolina para
+        esta bomba, y si se calcula que habrá espacio en el tanque para una gandola
+        de gasolina para cuando ésta llegue (asumiendo que llega la de menor tiempo
+        de respuesta) crea un hilo que se encarga de hacer la peticion a los Centros.
+
+    Centro:
+        Se crea un hilo secundario que se encargará unicamente de la entrada de
+        gasolina al Centro, mientras que el principal abre el socket para aceptar
+        conexiones entrantes de las Bombas, las cuales son atendidas por hilos 
+        secundarios, creados exclusivamente a este fin.
+
+    Log:
+        Se imprime en el log solamente cuando existe un cambio de estado o está
+        iniciando la simulación, es decir, si hay "Tanque full" o "Tanque vacio"
+        se imprime una vez hasta que esta condición cambie, logrando una mejor
+        legibilidad del log.
+
+Decisiones de diseño:
+    - Uso de semaforos para manejo de concurrencia en las variables globales, para
+      evitar busy waiting, logrando ahorrar tiempo de CPU.
+    - Se utilizó una cola de prioridad para almacenar la información de cada centro, 
+      pues como el numero de centros en el fichero es impredecible, es requerido
+      usar una estructura para guardar dicha información relevante.
+
+Archivos:
+    bomba.c:
+        Archivo para representación del cliente de la simulación.
+
+    centro.c:
+        Archivo para representación del servidor de la simulación.
+
+    queue.c:
+        Archivo donde se implementa una cola de prioridad para el 
+        manejo de los centros.
+
+    extra.c:
+        Archivo con funciones auxiliares (no relacionadas al problema en si).
+
+    errores.c:
+        Archivo con funciones que hacen manejo de los errores 
+        posibles por llamadas al sistema.
